@@ -2,43 +2,54 @@
 
 This roadmap is a working proposal. Phases may overlap or change as the specification develops.
 
+Phases reflect specification priority, not data flow. The data flow is Geometry Model → Structural Model → Analysis Model, but the Structural Model is specified first because most agreed design work concerns it.
+
 ## Phase 1 — Project foundations
 
 - Establish vision, principles and architecture
-- Define decision-making and specification conventions
-- Establish project versioning approach
+- Define decision-making and specification conventions (decision log: `specification/decisions.md`)
+- Establish project versioning approach (SemVer)
 - Define terminology
 
 ## Phase 2 — Core specification
 
 - Project metadata
-- Stable identifiers
-- Units
+- Stable identifiers and object numbering
+- Units (fixed SI)
 - Coordinate systems
 - Versioning
+- Package structure (`.smf`), manifest and JSON serialization
+- JSON Schema conventions
+- Extension mechanism
 - Relationship framework
 - External dataset references
 - Validation principles
 
-## Phase 3 — Analysis Model
+## Phase 3 — Structural Model
 
-- Nodes and elements
-- Connectivity and element types
-- Materials and sections
-- Supports, constraints and DOFs
-- Loads, cases and combinations
-- Analysis steps and settings
-- Mesh representation
+- Nodes and Simple Supports
+- Beams (straight and arc), Beam Properties, local axes, offsets, releases and taper
+- Shells and Solids
+- Springs, Ground Springs, Spring Properties and Spring Curves
+- Constraints
+- Materials and Sections
+- Mass
+- Groups and Lists
+- Loadcases and Loads
+- Free Loads and Grid Planes
+- Structural States
+- Mesh instructions and geometry references
+
+## Phase 4 — Analysis Model and Calculations
+
+- Generated mesh: nodes, elements, connectivity and element types
+- Mapping of supports, constraints, loads and mass onto the mesh
+- Free Load projection and distribution rules
+- Generation settings and provenance
+- Analysis Tasks, Analysis Types and settings
+- Cases, Combinations and Envelopes
+- Design Check hook
 - Model validation
-
-## Phase 4 — Structural Model
-
-- Structural entities and assemblies
-- Materials, sections and properties
-- Geometry references
-- Local axes, releases, offsets and connections
-- Mesh settings and refinement intent
-- Mesh generation provenance
 
 ## Phase 5 — Geometry Model
 
@@ -53,9 +64,8 @@ This roadmap is a working proposal. Phases may overlap or change as the specific
 
 - Result metadata and indexing
 - External result datasets
-- HDF5-based result layout investigation
-- Dedicated result file extension investigation
-- Load cases, steps, increments and result locations
+- HDF5 result layout for `.smr` files
+- Case sub-indexing, steps, increments and result locations
 - Selective result access
 - Integrity and provenance
 
@@ -94,6 +104,14 @@ This roadmap is a working proposal. Phases may overlap or change as the specific
 - Conversion utilities
 - Documentation and implementation guidance
 - Interoperability testing
+
+## Later versions
+
+- Dynamic analysis types (time history, response spectrum, harmonic)
+- Creep and shrinkage
+- Full Design Check model
+- Free Point Load moments
+- Moving Nodes as a Structural State delta
 
 ## Development principle
 
