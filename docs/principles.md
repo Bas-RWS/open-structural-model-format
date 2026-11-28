@@ -18,6 +18,8 @@ Domains are independently defined and optional. A file or project may contain an
 
 OSMF must not require a prescribed sequence such as geometry, structural model, analysis model and results. Models may be created independently or linked when appropriate.
 
+The standard path is Geometry Model → Structural Model → Analysis Model, where the Structural Model holds mesh instructions and the Analysis Model holds the generated mesh. This path is a convention, not a requirement: an Analysis Model may be imported or created without a Structural Model.
+
 ## 5. Semantic clarity
 
 Data should explicitly describe what it represents. Meaning should not depend solely on application-specific conventions or naming.
@@ -25,6 +27,8 @@ Data should explicitly describe what it represents. Meaning should not depend so
 ## 6. Stable identifiers
 
 Entities and datasets should have identifiers that enable reliable references across models, domains and revisions.
+
+Every object is identified by a UUID, and all references use the UUID. Object numbers exist for people and for import/export mapping; they carry no meaning and are never used as references.
 
 ## 7. Traceability and provenance
 
@@ -46,7 +50,9 @@ Explicit semantics, structured data, stable identifiers and traceable relationsh
 
 ## 11. External large datasets
 
-Large datasets such as point clouds, measurements, media, meshes and other data collections should be stored externally and referenced from OSMF.
+Large datasets such as point clouds, measurements, media and other data collections should be stored externally and referenced from OSMF.
+
+The Analysis Model mesh is an exception: it is always stored inside the OSMF package.
 
 External references should support portability, integrity verification and clear identification of missing data.
 
@@ -56,7 +62,7 @@ All computational result values shall be stored in external standardized result 
 
 The OSMF project shall contain result metadata, descriptions, indexes, provenance and references, but not actual computational result arrays or values.
 
-A dedicated result file extension using HDF5 as its underlying storage technology is a candidate design. The extension and internal layout remain to be decided.
+Result values are stored in HDF5 files with the extension `.smr`, placed next to the project package and referenced by relative path and checksum. The detailed internal layout remains to be decided.
 
 ## 13. Separation of data and implementation
 
@@ -71,3 +77,13 @@ Design decisions should be documented and classified as:
 - Open question
 
 Proposals must not be treated as final decisions without explicit agreement.
+
+All decisions are indexed in [`specification/decisions.md`](../specification/decisions.md).
+
+## 15. Fixed units
+
+All values are stored in fixed SI units per quantity (m, N, kg, s, K; rotations in radians; input angles in degrees). Display units are an application concern and never change stored values.
+
+## 16. No silent behavior
+
+Whenever data is skipped, ignored, excluded or cannot be applied (for example a load that lands on no element, a List member of a non-applicable type, or an incompatible input to an envelope), this must be reported. OSMF processing never discards information silently.
