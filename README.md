@@ -41,6 +41,7 @@ OSMF may contain or reference the following domains:
 - Geometry Model
 - Structural Model
 - Analysis Model
+- Calculations
 - Results
 - Inspection
 - Reality Capture
