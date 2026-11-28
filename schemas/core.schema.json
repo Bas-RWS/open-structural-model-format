@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Bas-RWS/open-structural-model-format/schemas/core.schema.json",
+  "title": "OSMF core objects",
+  "description": "Common object properties, Groups and Lists. See specification/core-objects.md. Rules that need the whole model (uniqueness, reference resolution, hierarchy depth, cycles) are checked by validators, not by this schema.",
+  "type": "object",
+  "properties": {
+    "groups": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Group" }
+    },
+    "lists": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/List" }
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "Uuid": {
+      "description": "Lowercase canonical UUID.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "ObjectNumber": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2147483647
+    },
+    "Name": {
+      "type": "string"
+    },
+    "Extensions": {
+      "description": "One key per declared extension namespace.",
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_]*$" },
+      "additionalProperties": { "type": "object" }
+    },
+    "ObjectBase": {
+      "description": "Properties shared by all OSMF objects.",
+      "type": "object",
+      "properties": {
+        "id": { "$ref": "#/$defs/Uuid" },
+        "type": { "type": "string", "pattern": "^[A-Z][A-Za-z0-9]*$" },
+        "number": { "$ref": "#/$defs/ObjectNumber" },
+        "name": { "$ref": "#/$defs/Name" },
+        "extensions": { "$ref": "#/$defs/Extensions" }
+      },
+      "required": ["id", "type"]
+    },
+    "StructuralObjectBase": {
+      "description": "Object that belongs to exactly one Group: Nodes, elements and Mass.",
+      "allOf": [{ "$ref": "#/$defs/ObjectBase" }],
+      "properties": {
+        "group": { "$ref": "#/$defs/Uuid" }
+      },
+      "required": ["number", "group"]
+    },
+    "Group": {
+      "allOf": [{ "$ref": "#/$defs/ObjectBase" }],
+      "properties": {
+        "id": true,
+        "type": { "const": "Group" },
+        "number": true,
+        "name": true,
+        "extensions": true,
+        "parent": {
+          "oneOf": [{ "$ref": "#/$defs/Uuid" }, { "type": "null" }]
+        }
+      },
+      "required": ["number", "parent"],
+      "unevaluatedProperties": false
+    },
+    "ListTerm": {
+      "type": "object",
+      "properties": {
+        "mode": { "enum": ["include", "exclude"] },
+        "kind": { "enum": ["object", "group", "property", "list"] },
+        "ref": { "$ref": "#/$defs/Uuid" },
+        "include_subgroups": { "type": "boolean", "default": true }
+      },
+      "required": ["mode", "kind", "ref"],
+      "additionalProperties": false,
+      "if": { "properties": { "kind": { "not": { "const": "group" } } } },
+      "then": { "not": { "required": ["include_subgroups"] } }
+    },
+    "List": {
+      "allOf": [{ "$ref": "#/$defs/ObjectBase" }],
+      "properties": {
+        "id": true,
+        "type": { "const": "List" },
+        "number": true,
+        "name": true,
+        "extensions": true,
+        "terms": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ListTerm" }
+        },
+        "source_text": { "type": "string" }
+      },
+      "required": ["number", "terms"],
+      "unevaluatedProperties": false
+    }
+  }
+}

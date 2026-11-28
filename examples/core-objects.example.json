@@ -1,0 +1,57 @@
+{
+  "groups": [
+    {
+      "id": "0b9e6f2a-1c3d-4e5f-8a7b-9c0d1e2f3a41",
+      "type": "Group",
+      "number": 1,
+      "name": "Deck",
+      "parent": null
+    },
+    {
+      "id": "0b9e6f2a-1c3d-4e5f-8a7b-9c0d1e2f3a42",
+      "type": "Group",
+      "number": 1,
+      "name": "Deck - main girders",
+      "parent": "0b9e6f2a-1c3d-4e5f-8a7b-9c0d1e2f3a41"
+    },
+    {
+      "id": "0b9e6f2a-1c3d-4e5f-8a7b-9c0d1e2f3a43",
+      "type": "Group",
+      "number": 2,
+      "name": "Piers",
+      "parent": null
+    }
+  ],
+  "lists": [
+    {
+      "id": "5d4c3b2a-6e7f-4a8b-9c0d-1e2f3a4b5c61",
+      "type": "List",
+      "number": 1,
+      "name": "Deck and piers without bearing beam 17, plus node 3",
+      "source_text": "G1 G2 not E17 N3",
+      "terms": [
+        {
+          "mode": "include",
+          "kind": "group",
+          "ref": "0b9e6f2a-1c3d-4e5f-8a7b-9c0d1e2f3a41",
+          "include_subgroups": true
+        },
+        {
+          "mode": "include",
+          "kind": "group",
+          "ref": "0b9e6f2a-1c3d-4e5f-8a7b-9c0d1e2f3a43"
+        },
+        {
+          "mode": "exclude",
+          "kind": "object",
+          "ref": "9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c17"
+        },
+        {
+          "mode": "include",
+          "kind": "object",
+          "ref": "9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c03"
+        }
+      ]
+    }
+  ]
+}
