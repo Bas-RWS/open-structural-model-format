@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Bas-RWS/open-structural-model-format/schemas/nodes.schema.json",
+  "title": "OSMF Nodes",
+  "description": "Node and Simple Support. See specification/nodes.md. Rules that need the whole model (coincident Nodes, conflicts with Ground Springs) are checked by validators.",
+  "type": "object",
+  "properties": {
+    "nodes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Node" }
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "Fixity": { "enum": ["free", "fixed"] },
+    "SimpleSupport": {
+      "description": "One key per global DOF; a missing key means free [N2].",
+      "type": "object",
+      "properties": {
+        "x": { "$ref": "#/$defs/Fixity" },
+        "y": { "$ref": "#/$defs/Fixity" },
+        "z": { "$ref": "#/$defs/Fixity" },
+        "xx": { "$ref": "#/$defs/Fixity" },
+        "yy": { "$ref": "#/$defs/Fixity" },
+        "zz": { "$ref": "#/$defs/Fixity" }
+      },
+      "additionalProperties": false
+    },
+    "Node": {
+      "allOf": [{ "$ref": "core.schema.json#/$defs/ObjectBase" }],
+      "properties": {
+        "id": true,
+        "type": { "const": "Node" },
+        "number": true,
+        "name": true,
+        "extensions": true,
+        "position": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "support": { "$ref": "#/$defs/SimpleSupport" }
+      },
+      "required": ["number", "position"],
+      "unevaluatedProperties": false
+    }
+  }
+}
