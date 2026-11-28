@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Bas-RWS/open-structural-model-format/schemas/beams.schema.json",
+  "title": "OSMF Beams and Beam Properties",
+  "description": "Beam and Beam Property. See specification/beams.md. Rules that need the whole model (reference types, coincident Nodes, collinear arcs, taper compatibility) are checked by validators.",
+  "type": "object",
+  "properties": {
+    "beams": { "type": "array", "items": { "$ref": "#/$defs/Beam" } },
+    "beam_properties": { "type": "array", "items": { "$ref": "#/$defs/BeamProperty" } }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "Point": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "Offset": {
+      "description": "[dy, dz] in m, local axes of the node line I-J [B10].",
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2,
+      "maxItems": 2,
+      "default": [0, 0]
+    },
+    "ArcSegmentation": {
+      "type": "object",
+      "oneOf": [
+        { "properties": { "segments": { "type": "integer", "minimum": 1 } }, "required": ["segments"] },
+        { "properties": { "max_length": { "type": "number", "exclusiveMinimum": 0 } }, "required": ["max_length"] },
+        { "properties": { "max_angle": { "type": "number", "exclusiveMinimum": 0 } }, "required": ["max_angle"] }
+      ],
+      "properties": { "segments": true, "max_length": true, "max_angle": true },
+      "additionalProperties": false
+    },
+    "ReleaseState": { "enum": ["connected", "released"] },
+    "Release": {
+      "description": "One key per local DOF; a missing key means connected.",
+      "type": "object",
+      "properties": {
+        "x": { "$ref": "#/$defs/ReleaseState" },
+        "y": { "$ref": "#/$defs/ReleaseState" },
+        "z": { "$ref": "#/$defs/ReleaseState" },
+        "xx": { "$ref": "#/$defs/ReleaseState" },
+        "yy": { "$ref": "#/$defs/ReleaseState" },
+        "zz": { "$ref": "#/$defs/ReleaseState" }
+      },
+      "additionalProperties": false
+    },
+    "Beam": {
+      "allOf": [{ "$ref": "core.schema.json#/$defs/ElementBase" }],
+      "properties": {
+        "id": true,
+        "type": { "const": "Beam" },
+        "number": true,
+        "name": true,
+        "extensions": true,
+        "group": true,
+        "inactive": { "type": "boolean", "default": false },
+        "node_i": { "$ref": "core.schema.json#/$defs/Uuid" },
+        "node_j": { "$ref": "core.schema.json#/$defs/Uuid" },
+        "beam_property": { "$ref": "core.schema.json#/$defs/Uuid" },
+        "arc_point": { "$ref": "#/$defs/Point" },
+        "arc_segmentation": { "$ref": "#/$defs/ArcSegmentation" }
+      },
+      "required": ["node_i", "node_j"],
+      "unevaluatedProperties": false
+    },
+    "BeamProperty": {
+      "allOf": [{ "$ref": "core.schema.json#/$defs/ObjectBase" }],
+      "properties": {
+        "id": true,
+        "type": { "const": "BeamProperty" },
+        "number": true,
+        "name": true,
+        "extensions": true,
+        "element_type": { "enum": ["beam", "beam_no_shear", "bar", "strut", "tie"] },
+        "material": { "$ref": "core.schema.json#/$defs/Uuid" },
+        "section_i": { "$ref": "core.schema.json#/$defs/Uuid" },
+        "section_j": { "$ref": "core.schema.json#/$defs/Uuid" },
+        "rotation": { "type": "number", "default": 0 },
+        "offset_i": { "$ref": "#/$defs/Offset" },
+        "offset_j": { "$ref": "#/$defs/Offset" },
+        "releases_i": { "$ref": "#/$defs/Release" },
+        "releases_j": { "$ref": "#/$defs/Release" }
+      },
+      "required": ["number", "element_type", "material", "section_i"],
+      "unevaluatedProperties": false
+    }
+  }
+}
