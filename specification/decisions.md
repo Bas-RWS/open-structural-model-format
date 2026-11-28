@@ -67,7 +67,7 @@ part of the OSMF specification.
 
 | # | Decision | Status |
 |---|----------|--------|
-| N1 | Node: UUID, number, optional name, global X/Y/Z, Group, optional Simple Support. No local orientation. | Agreed |
+| N1 | Node: UUID, number, optional name, global X/Y/Z, optional Simple Support. No local orientation. *Refined by O12: a Node has no Group.* | Agreed |
 | N2 | Simple Support: six DOFs (X, Y, Z, XX, YY, ZZ), each Free or Fixed, stored on the Node. | Agreed |
 | N3 | Complex and angled supports use Ground Springs. Simple Support and Ground Spring must not conflict on the same DOF. | Agreed |
 | N4 | Line and area supports are not dataset entities; postprocessing reconstructs them from nodal reactions and constraints. | Agreed |
