@@ -1,6 +1,6 @@
 # OSMF Nodes and Supports
 
-**Status:** Draft. All rules restate Agreed decisions from [`decisions.md`](decisions.md). The decision IDs are given in brackets. Items marked *(Proposed)* are not yet approved.
+**Status:** Draft. All rules restate Agreed decisions from [`decisions.md`](decisions.md). The decision IDs are given in brackets.
 
 Machine-readable schema: [`schemas/nodes.schema.json`](../schemas/nodes.schema.json).
 
@@ -13,19 +13,19 @@ A Node is a point in the Structural Model [N1]. It has no local orientation and 
 | Property | Type | Required | Description |
 |---|---|---|---|
 | `id`, `type` = `"Node"`, `number`, `name`, `extensions` | | | See [`core-objects.md`](core-objects.md) §1. `number` is required. |
-| `position` | array of 3 numbers | yes | *(Proposed)* Global coordinates `[x, y, z]` in m. |
+| `position` | array of 3 numbers | yes | Global coordinates `[x, y, z]` in m [N6]. |
 | `support` | Simple Support | no | Restrained DOFs. Without `support`, all six DOFs are free [N2]. |
 
 Rules:
 
 - Coordinates are finite doubles in m [U1, conventions §5].
-- *(Proposed)* Two Nodes whose positions are closer than 1e-6 m are reported with a `warning`. They remain separate Nodes; the format does not merge them.
+- Two Nodes whose positions are closer than 1e-6 m are reported with a `warning`. They remain separate Nodes; the format does not merge them [N8]. Merging is an application action with its own tolerance.
 
 ## 2. Simple Support
 
 A Simple Support restrains DOFs of a Node in the global axes [N2]. Complex and angled supports use Ground Springs [N3].
 
-*(Proposed)* A Simple Support is an object with one key per DOF. Each value is `"free"` or `"fixed"`. A missing key means `"free"`.
+A Simple Support is an object with one key per DOF [N7]. Each value is `"free"` or `"fixed"`. A missing key means `"free"`.
 
 | Key | DOF |
 |---|---|
@@ -40,7 +40,7 @@ A Simple Support restrains DOFs of a Node in the global axes [N2]. Complex and a
 
 Rules:
 
-- A Simple Support and a Ground Spring MUST NOT act on the same DOF of the same Node [N3]. *(Proposed)* This is an `error`.
+- A Simple Support and a Ground Spring SHOULD NOT act on the same DOF of the same Node [N3]. If they do, the file stays valid: the Simple Support wins, the Ground Spring is ignored for that DOF and a `warning` is reported [N9]. The Ground Spring still acts on its other DOFs.
 - Line and area supports are not stored; postprocessing reconstructs them from nodal reactions and Constraints [N4].
 - "Rigid link" is not a separate concept. Use a Rigid Point-to-Point Constraint [N5].
 

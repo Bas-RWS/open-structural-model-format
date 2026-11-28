@@ -69,9 +69,13 @@ part of the OSMF specification.
 |---|----------|--------|
 | N1 | Node: UUID, number, optional name, global X/Y/Z, optional Simple Support. No local orientation. *Refined by O12: a Node has no Group.* | Agreed |
 | N2 | Simple Support: six DOFs (X, Y, Z, XX, YY, ZZ), each Free or Fixed, stored on the Node. | Agreed |
-| N3 | Complex and angled supports use Ground Springs. Simple Support and Ground Spring must not conflict on the same DOF. | Agreed |
+| N3 | Complex and angled supports use Ground Springs. Simple Support and Ground Spring must not conflict on the same DOF. *Refined by N9: a conflict is a warning, not an error.* | Agreed |
 | N4 | Line and area supports are not dataset entities; postprocessing reconstructs them from nodal reactions and constraints. | Agreed |
 | N5 | Documentation uses only Simple Support, Ground Spring, Spring and Constraint. "Rigid link" is not a separate concept: use a Rigid Point-to-Point Constraint. | Agreed |
+| N6 | Node coordinates are stored as `position: [x, y, z]` in m, global axes. | Agreed |
+| N7 | A Simple Support is an object with keys `x`, `y`, `z`, `xx`, `yy`, `zz` and values `free` or `fixed`; a missing key means free. | Agreed |
+| N8 | Nodes closer than 1e-6 m give a warning and are not merged by the format. | Agreed |
+| N9 | A Simple Support and a Ground Spring on the same DOF give a warning: the Simple Support wins and the Ground Spring is ignored for that DOF. | Agreed |
 
 ## 5. Elements: common
 
