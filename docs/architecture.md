@@ -6,6 +6,10 @@ OSMF is organized into independent domains connected through shared project meta
 
 Domains are optional. Multiple instances of the same model type may exist in one project. No mandatory workflow or dependency is imposed.
 
+The standard path is Geometry Model → Structural Model → Analysis Model. The Structural Model holds mesh instructions; the Analysis Model holds the generated mesh. The project-level Calculations domain holds Analysis Tasks, Cases, Combinations, Envelopes and Design Checks, which use Analysis Models and Structural States. An Analysis Model may also be imported or created without a Structural Model.
+
+Agreed design decisions are indexed in [`specification/decisions.md`](../specification/decisions.md).
+
 ## 2. Project Core
 
 The Project Core provides shared foundations, including:
@@ -14,10 +18,13 @@ The Project Core provides shared foundations, including:
 - Format version
 - Stable identifiers
 - Units and unit conventions
+- Project gravity
 - Coordinate reference systems
 - Georeferencing
 - External dataset descriptors
 - Shared metadata and provenance
+
+All values are stored in fixed SI units per quantity. An optional preferred-units setting may record display preferences; it never changes stored values.
 
 ## 3. Geometry Model
 
@@ -43,47 +50,70 @@ Visualization tessellation should be distinguishable from original geometry.
 
 Describes the structural idealization and engineering interpretation of a structure.
 
-Potential entities include:
+Entities include:
 
-- Beams, columns, trusses and cables
-- Plates, shells and membranes
-- Solid structural entities
-- Springs, supports and rigid links
-- Connections and assemblies
-- Materials and sections
-- Thickness, stiffness and mass properties
-- Eccentricities, offsets and releases
-- Local coordinate systems
+- Nodes, with optional Simple Support
+- Beams (straight or circular arc; a Beam without Beam Property has no stiffness and serves as a mesh, load and coupling line)
+- Shells and Solids
+- Springs and Ground Springs
+- Constraints (Point-to-Point, Line-to-Line, Line-to-Point)
+- Materials and Sections
+- Beam Properties, Spring Properties, Ground Spring Properties and Spring Curves
+- Offsets and releases
+- Mass
+- Groups and Lists
+- Loadcases and Loads, including Free Loads and Grid Planes
+- Structural States
+- Mesh instructions
+
+Every element has an `inactive` flag; inactive elements are kept in the Structural Model but excluded from the Analysis Model.
 
 The Structural Model may reference geometry, but geometry is not mandatory.
 
-Mesh generation intent and settings belong to the Structural Model. Settings may include global defaults, entity-specific overrides, local refinements, target regions, mesh types, element order, size controls and mesher extensions.
+Mesh generation intent and settings belong to the Structural Model. Settings may include global defaults, entity-specific overrides, local refinements, target regions, mesh types, element order, size controls, arc segmentation and mesher extensions. The Structural Model contains no solver-generated discretization.
 
 Mesh setting inheritance and conflict resolution require a formal definition.
 
+Structural States represent cumulative changes to the base Structural Model (added or removed objects, replaced Properties, Materials or Sections, changed supports). States form a tree through an optional parent reference.
+
 ## 5. Analysis Model
 
-Describes a solver-oriented computational model.
+Describes the discretized computational representation of a structure.
 
-Potential entities include:
+Entities include:
 
 - Nodes
 - Elements and connectivity
 - Element types
-- Materials and sections
-- Supports and constraints
-- Loads and load cases
-- Load combinations
-- Analysis steps and settings
-- Mesh and groups
+- References to Materials, Sections and Properties
+- Supports and constraints as applied to the mesh
+- Loads as mapped onto the mesh, including projected Free Loads
+- Generated mass
+- Generation settings and provenance
 
-An Analysis Model may be independently created, imported or generated from another model. It does not require a Geometry Model or Structural Model.
+An Analysis Model is normally generated from a Structural Model. It may also be independently created or imported; it does not require a Geometry Model or Structural Model.
 
-Meshes may be manually created, imported or generated. Mesh generation provenance may be recorded.
+Meshes may be manually created, imported or generated. Mesh generation provenance, including the Free Load distribution algorithm used, is recorded.
 
-## 6. Results
+Loadcases, Combinations and analysis settings are not part of the Analysis Model: Loadcases belong to the Structural Model and Combinations to Calculations.
 
-Computational results are represented by metadata and references in OSMF. Actual result values are stored externally.
+## 6. Calculations
+
+The project-level Calculations domain holds:
+
+- Analysis Tasks, each referencing exactly one Analysis Model, one Structural State, one Analysis Type and one settings set
+- Cases, which store the calculation snapshot, provenance and result references
+- Combinations, which reference Cases
+- Envelopes, which find extrema across compatible Cases
+- Design Checks, which reference Cases, Combinations or Envelopes and a namespaced code extension
+
+Base Analysis Types are Linear static, Nonlinear static, Modal, Linear buckling and Staged. Further types may be added in later versions. Solver-specific settings belong in extensions.
+
+Deleting a Task does not delete its Cases. Changed inputs mark results stale.
+
+## 7. Results
+
+Computational results are represented by metadata and references in OSMF. Actual result values are always stored externally.
 
 Potential result types include:
 
@@ -97,11 +127,11 @@ Potential result types include:
 - Time histories
 - Energy and convergence data
 
-Result metadata may identify the analysis run, solver and version, Analysis Model, load cases, combinations, steps, increments, units, available result types, provenance and external datasets.
+Result metadata identifies the Case (with sub-index), quantity and components, units, coordinate system, location type, references to Analysis Model entities by UUID, the external dataset and its checksum, and provenance. Unaveraged element-node values are stored; averaging is postprocessing.
 
-A dedicated result-file extension with HDF5 storage is under consideration.
+Result values are stored in HDF5 files with the extension `.smr`. The detailed layout remains open.
 
-## 7. Inspection
+## 8. Inspection
 
 Describes condition assessments and inspection observations.
 
@@ -119,7 +149,7 @@ Potential information includes:
 
 Inspections are historical records. New inspections should not overwrite earlier observations.
 
-## 8. Reality Capture
+## 9. Reality Capture
 
 Describes reality-capture datasets and their metadata.
 
@@ -137,7 +167,7 @@ Metadata may include acquisition information, device, source format, coordinate 
 
 Large capture datasets are stored externally.
 
-## 9. Measurements and Monitoring
+## 10. Measurements and Monitoring
 
 Describes quantitative measurements and structural health monitoring.
 
@@ -157,9 +187,9 @@ Measurement points should be independent of sensors so sensor replacement does n
 
 Large measurement datasets are stored externally.
 
-## 10. Libraries
+## 11. Libraries
 
-Provides reusable definitions, including:
+Libraries are sources of reusable definitions, including:
 
 - Materials
 - Sections and profiles
@@ -171,9 +201,9 @@ Provides reusable definitions, including:
 - Vehicle classes
 - Standards and reference data
 
-Library definitions may be embedded or referenced externally. Versioning is important for traceability.
+Library items are copied into the project on import as standalone objects. Each copy keeps provenance metadata (library, version and item identifier). Library items are never live-linked, so a library update never changes an existing project silently.
 
-## 11. Relationships
+## 12. Relationships
 
 Relationships are represented in a separate relationship layer instead of being rigidly embedded in individual domains.
 
@@ -199,7 +229,7 @@ Examples include:
 
 Relationships may include mapping, transformation, provenance and extension information.
 
-## 12. Global-local models and submodels
+## 13. Global-local models and submodels
 
 A local or detailed model is represented as an independent Analysis Model linked to another Analysis Model.
 
@@ -209,7 +239,7 @@ A relationship may define an interface using nodes, elements, surfaces, geometri
 
 Initial scope may support one-way displacement transfer from a global model to a local model, including beam-to-solid kinematic mapping. Future extensions may include load transfer, iterative coupling and two-way coupling.
 
-## 13. External datasets
+## 14. External datasets
 
 Large or specialized datasets are referenced rather than embedded.
 
@@ -219,8 +249,9 @@ Potential external data include:
 - Measurements and time series
 - Point clouds and scans
 - Photographs and videos
-- Large meshes
 - Raster and imaging datasets
+
+Analysis Model meshes are not external datasets; they are always stored inside the package.
 
 External dataset metadata may include identifier, locator, type, format, size, checksum, version, timestamps, source, description, units and coordinate system.
 
@@ -228,20 +259,30 @@ Relative paths should be supported for portable project arrangements. Other loca
 
 Missing external datasets should be detectable and reported without making the remaining project metadata inaccessible.
 
-## 14. Extensions
+## 15. Extensions
 
 Extensions add specialized capabilities without redefining the core.
 
 Potential namespaces include bridge, building, tunnel, Eurocode, prestressing, fatigue, construction stages, reinforcement, monitoring, WIM, solver-specific and mesher-specific information.
 
-Extensions should be namespaced, documented and preservable by applications that do not support them.
+Any object may carry an `extensions` block keyed by namespace. Each namespace used is declared in the manifest with a version and a `required` flag. Applications that do not support an extension preserve it unchanged; an unknown required extension causes a warning or refusal.
 
-## 15. Package and file structure
+## 16. Package and file structure
 
-A ZIP-based OSMF package is a candidate packaging approach.
+An OSMF project is a ZIP package with the extension `.smf`:
 
-The package may contain a manifest, model definitions, relationships, domain metadata, libraries and extensions.
+```
+project.smf
+├─ manifest.json        format version, project UUID, domains, file index and checksums, external references
+├─ project.json         Project Core
+├─ geometry/            Geometry Model (optional)
+├─ structural/          Structural Model
+├─ analysis/            Analysis Model(s), including the mesh
+├─ calculations/        Tasks, Cases, Combinations, Envelopes, Design Checks
+├─ relationships/       relationship layer
+└─ extensions/<namespace>/
+```
 
-Large external datasets remain outside the package.
+Result files (`.smr`, HDF5) and other large external datasets are stored outside the package and referenced from the manifest.
 
-The exact package layout, serialization, schema and file extensions remain open design topics.
+Files inside the package are JSON (UTF-8), validated by JSON Schema (2020-12) per domain. The format is versioned with SemVer: minor versions are additive only, and readers refuse a higher major version than they support.
