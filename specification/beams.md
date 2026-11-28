@@ -1,6 +1,6 @@
 # OSMF Elements and Beams
 
-**Status:** Draft. All rules restate Agreed decisions from [`decisions.md`](decisions.md). The decision IDs are given in brackets. Items marked *(Proposed)* are not yet approved.
+**Status:** Draft. All rules restate Agreed decisions from [`decisions.md`](decisions.md). The decision IDs are given in brackets.
 
 Machine-readable schema: [`schemas/beams.schema.json`](../schemas/beams.schema.json).
 
@@ -23,7 +23,7 @@ Every element (Beam, Shell, Solid, Spring, Ground Spring, Constraint) has the co
 | `id`, `type` = `"Beam"`, `number`, `name`, `extensions`, `group`, `inactive` | | | See §1. |
 | `node_i`, `node_j` | UUID → Node | yes | Start and end Node [B1]. |
 | `beam_property` | UUID → Beam Property | no | Without it the Beam has no stiffness and no mass [B4]. |
-| `arc_point` | array of 3 numbers | no | *(Proposed)* A point on the arc, global `[x, y, z]` in m. Without it the Beam is straight [B2]. |
+| `arc_point` | array of 3 numbers | no | A point on the arc [B15], global `[x, y, z]` in m. Without it the Beam is straight [B2]. |
 | `arc_segmentation` | Arc Segmentation | no | Mesh instruction for an arc [B3]; see §2.2. |
 
 Rules:
@@ -33,11 +33,11 @@ Rules:
 
 ### 2.1 Arc
 
-A Beam is a circular arc from Node I to Node J through `arc_point` [B2]. *(Proposed)* `arc_point` may be any point strictly between I and J on the arc. If the three points are collinear within 1e-6 m, the Beam is invalid (`error`). Splines are outside the core [B2].
+A Beam is a circular arc from Node I to Node J through `arc_point` [B2]. `arc_point` may be any point strictly between I and J on the arc [B15]. If the three points are collinear within 1e-6 m, the Beam is invalid (`error`). Splines are outside the core [B2].
 
 ### 2.2 Arc segmentation
 
-The Analysis Model receives straight segments [B3]. *(Proposed)* Arc Segmentation is an object with exactly one of:
+The Analysis Model receives straight segments [B3]. Arc Segmentation is an object with exactly one of [B16]:
 
 | Key | Type | Meaning |
 |---|---|---|
@@ -45,7 +45,7 @@ The Analysis Model receives straight segments [B3]. *(Proposed)* Arc Segmentatio
 | `max_length` | number > 0 | Maximum segment length in m |
 | `max_angle` | number > 0 | Maximum angle per segment in degrees |
 
-*(Proposed)* Without `arc_segmentation`, an arc uses `{ "max_angle": 10 }`. `arc_segmentation` on a straight Beam is ignored with a `warning`.
+Without `arc_segmentation`, an arc uses `{ "max_angle": 10 }`. `arc_segmentation` on a straight Beam is ignored with a `warning`.
 
 ### 2.3 Local axes
 
@@ -69,14 +69,14 @@ A Beam Property is a shared definition referenced by Beams [O4, B5]. It has the 
 | `element_type` | enum | yes | See §3.1 [B6]. |
 | `material` | UUID → Material | yes | |
 | `section_i` | UUID → Section | yes | Section at Node I, or over the full length. |
-| `section_j` | UUID → Section | no | *(Proposed)* Section at Node J for a tapered Beam. Missing or equal to `section_i` means prismatic [B12]. |
+| `section_j` | UUID → Section | no | Section at Node J for a tapered Beam. Missing or equal to `section_i` means prismatic [B12, B18]. |
 | `rotation` | number | no, default `0` | Section rotation about local x, in degrees [U2, B7]. |
-| `offset_i`, `offset_j` | array of 2 numbers | no, default `[0, 0]` | *(Proposed)* Offset `[dy, dz]` in m [B10]; see §3.2. |
-| `releases_i`, `releases_j` | Release | no | *(Proposed)* Simple releases at I and J [B11]; see §3.3. |
+| `offset_i`, `offset_j` | array of 2 numbers | no, default `[0, 0]` | Offset `[dy, dz]` in m [B10, B19]; see §3.2. |
+| `releases_i`, `releases_j` | Release | no | Simple releases at I and J [B11, B20]; see §3.3. |
 
 ### 3.1 Element types
 
-*(Proposed)* enum values for B6:
+Enum values for B6 [B17]:
 
 | Value | Meaning |
 |---|---|
@@ -86,7 +86,7 @@ A Beam Property is a shared definition referenced by Beams [O4, B5]. It has the 
 | `strut` | Axial force only, compression-only |
 | `tie` | Axial force only, tension-only |
 
-*(Proposed)* For `bar`, `strut` and `tie`, releases are ignored with a `warning`, because these types carry no moments.
+For `bar`, `strut` and `tie`, releases are ignored with a `warning`, because these types carry only axial force. This includes a release of `x`, so the member keeps its axial stiffness [B21].
 
 ### 3.2 Offsets
 
@@ -94,7 +94,7 @@ An offset is the vector from the Node to the actual member end (end = node + off
 
 ### 3.3 Releases
 
-*(Proposed)* A Release is an object with one key per local DOF at that end, like the Simple Support of [`nodes.md`](nodes.md) §2:
+A Release is an object with one key per local DOF at that end [B20], like the Simple Support of [`nodes.md`](nodes.md) §2:
 
 | Key | DOF (local axes) |
 |---|---|
@@ -109,7 +109,7 @@ Rules [B11]:
 
 - Releases along the length are not possible.
 - Complex releases (partial stiffness, nonlinear) use a separate Release object, to be specified in a later document. A simple release and a complex release on the same DOF and end are invalid (`error`).
-- *(Proposed)* Releasing the same DOF at both ends for `x` or `xx` creates a mechanism and is reported with a `warning`.
+- Releasing `x` or `xx` at both ends creates a mechanism and is reported with a `warning` [B22]. It is not an error, because Springs, Constraints or other members may restrain it. Releasing `yy` and `zz` at both ends is a normal pin-ended member.
 
 ### 3.4 Taper
 

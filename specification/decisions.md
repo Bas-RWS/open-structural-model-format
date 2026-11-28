@@ -101,6 +101,14 @@ part of the OSMF specification.
 | B12 | Tapered Beam: Sections at I and J; one Section applies over the full length; identical Sections mean prismatic. | Agreed |
 | B13 | Taper requires the same definition method and shape type at both ends, otherwise the model is invalid (reported). Parametric: dimensions vary linearly, properties are derived from the interpolated geometry. User-defined: same topology, coordinates vary linearly. Explicit properties: values vary linearly. Profile library: not taperable (convert to parametric first). Non-linear haunches: split the member. | Agreed |
 | B14 | Sections are reusable objects: explicit properties, parametric, profile library, or user-defined/composite geometry retaining design-check metadata. | Agreed |
+| B15 | An arc is stored as `arc_point: [x, y, z]`, any point on the arc strictly between I and J; collinear points are an error. | Agreed |
+| B16 | Arc segmentation has exactly one of `segments`, `max_length` (m) or `max_angle` (degrees); default `max_angle` 10°; ignored with a warning on a straight Beam. | Agreed |
+| B17 | Element type values: `beam`, `beam_no_shear`, `bar`, `strut`, `tie`. | Agreed |
+| B18 | Beam Property has a required `section_i` and an optional `section_j`; missing or equal means prismatic. | Agreed |
+| B19 | Offsets are stored as `offset_i` and `offset_j`, each `[dy, dz]` in m, default `[0, 0]`. | Agreed |
+| B20 | Simple releases are stored as `releases_i` and `releases_j`, objects with local DOF keys `x` … `zz` and values `connected` or `released`; a missing key means connected. | Agreed |
+| B21 | Releases on `bar`, `strut` and `tie` are ignored with a warning. | Agreed |
+| B22 | Releasing `x` or `xx` at both ends of a Beam is reported as a mechanism with a warning. | Agreed |
 
 ## 7. Materials and libraries
 
