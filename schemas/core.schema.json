@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Bas-RWS/open-structural-model-format/schemas/core.schema.json",
+  "title": "OSMF core objects",
+  "description": "Common object properties, Group labels and Lists. See specification/core-objects.md. Rules that need the whole model (uniqueness, reference resolution, cycles) are checked by validators, not by this schema.",
+  "type": "object",
+  "properties": {
+    "group_names": {
+      "$ref": "#/$defs/GroupNames"
+    },
+    "beams": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ElementBase"
+      }
+    },
+    "shells": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ElementBase"
+      }
+    },
+    "solids": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ElementBase"
+      }
+    },
+    "springs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ElementBase"
+      }
+    },
+    "ground_springs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ElementBase"
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ElementBase"
+      }
+    },
+    "lists": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/List"
+      }
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "Uuid": {
+      "description": "Lowercase canonical UUID.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "ObjectNumber": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2147483647
+    },
+    "Name": {
+      "type": "string"
+    },
+    "GroupLabel": {
+      "description": "G followed by one to three positive numbers separated by underscores, e.g. G1, G1_2, G1_2_3 [O7, O12].",
+      "type": "string",
+      "pattern": "^G[1-9][0-9]*(_[1-9][0-9]*){0,2}$"
+    },
+    "GroupNames": {
+      "description": "Optional map from Group label to name, stored in the Project Core.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/GroupLabel"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/Name"
+      }
+    },
+    "Extensions": {
+      "description": "One key per declared extension namespace.",
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]*$"
+      },
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "ObjectBase": {
+      "description": "Properties shared by all OSMF objects.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Uuid"
+        },
+        "type": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Za-z0-9]*$"
+        },
+        "number": {
+          "$ref": "#/$defs/ObjectNumber"
+        },
+        "name": {
+          "$ref": "#/$defs/Name"
+        },
+        "extensions": {
+          "$ref": "#/$defs/Extensions"
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ]
+    },
+    "ElementBase": {
+      "description": "Properties shared by all elements. Element-specific schemas extend this.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/ObjectBase"
+        }
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "Beam",
+            "Shell",
+            "Solid",
+            "Spring",
+            "GroundSpring",
+            "Constraint"
+          ]
+        },
+        "group": {
+          "$ref": "#/$defs/GroupLabel"
+        }
+      },
+      "required": [
+        "number",
+        "group"
+      ]
+    },
+    "ListTerm": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": [
+            "include",
+            "exclude"
+          ]
+        },
+        "kind": {
+          "enum": [
+            "object",
+            "group",
+            "property",
+            "list"
+          ]
+        },
+        "ref": {
+          "$ref": "#/$defs/Uuid"
+        },
+        "label": {
+          "$ref": "#/$defs/GroupLabel"
+        },
+        "include_subgroups": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "required": [
+        "mode",
+        "kind"
+      ],
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "group"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "label"
+        ],
+        "not": {
+          "required": [
+            "ref"
+          ]
+        }
+      },
+      "else": {
+        "required": [
+          "ref"
+        ],
+        "allOf": [
+          {
+            "not": {
+              "required": [
+                "label"
+              ]
+            }
+          },
+          {
+            "not": {
+              "required": [
+                "include_subgroups"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "List": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ObjectBase"
+        }
+      ],
+      "properties": {
+        "id": true,
+        "type": {
+          "const": "List"
+        },
+        "number": true,
+        "name": true,
+        "extensions": true,
+        "terms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ListTerm"
+          }
+        },
+        "source_text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "number",
+        "terms"
+      ],
+      "unevaluatedProperties": false
+    }
+  }
+}
