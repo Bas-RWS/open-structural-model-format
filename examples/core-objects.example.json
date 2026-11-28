@@ -1,25 +1,30 @@
 {
-  "groups": [
+  "group_names": {
+    "G1": "Deck",
+    "G1_1": "Deck - main girders",
+    "G2": "Piers"
+  },
+  "beams": [
     {
-      "id": "0b9e6f2a-1c3d-4e5f-8a7b-9c0d1e2f3a41",
-      "type": "Group",
-      "number": 1,
-      "name": "Deck",
-      "parent": null
+      "id": "9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c11",
+      "type": "Beam",
+      "number": 11,
+      "group": "G1_1"
     },
     {
-      "id": "0b9e6f2a-1c3d-4e5f-8a7b-9c0d1e2f3a42",
-      "type": "Group",
-      "number": 1,
-      "name": "Deck - main girders",
-      "parent": "0b9e6f2a-1c3d-4e5f-8a7b-9c0d1e2f3a41"
-    },
+      "id": "9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c17",
+      "type": "Beam",
+      "number": 17,
+      "name": "Bearing beam",
+      "group": "G2"
+    }
+  ],
+  "shells": [
     {
-      "id": "0b9e6f2a-1c3d-4e5f-8a7b-9c0d1e2f3a43",
-      "type": "Group",
-      "number": 2,
-      "name": "Piers",
-      "parent": null
+      "id": "9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c21",
+      "type": "Shell",
+      "number": 21,
+      "group": "G1"
     }
   ],
   "lists": [
@@ -33,13 +38,13 @@
         {
           "mode": "include",
           "kind": "group",
-          "ref": "0b9e6f2a-1c3d-4e5f-8a7b-9c0d1e2f3a41",
+          "label": "G1",
           "include_subgroups": true
         },
         {
           "mode": "include",
           "kind": "group",
-          "ref": "0b9e6f2a-1c3d-4e5f-8a7b-9c0d1e2f3a43"
+          "label": "G2"
         },
         {
           "mode": "exclude",

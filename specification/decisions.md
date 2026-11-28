@@ -37,6 +37,7 @@ part of the OSMF specification.
 | U1 | All values are stored in fixed SI units per quantity: m, N, kg, s, K (a ΔT is numerically equal in K and °C). | Agreed |
 | U2 | Rotations and rotational stiffness in radians. Input angles (Section rotation, Grid Plane distribution angle) in degrees. | Agreed |
 | U3 | Display units are an application concern. An optional preferred-units field in the Project Core never changes stored values. | Agreed |
+| U4 | Global Z points up by convention. Gravity is stored in the Project Core as a vector in m/s², default (0, 0, −9.81). | Agreed |
 
 ## 3. Objects, identity, numbering, Groups and Lists
 
@@ -48,10 +49,19 @@ part of the OSMF specification.
 | O4 | Shared definitions (Materials, Sections, Properties) are separate objects referenced by instances. | Agreed |
 | O5 | Copies receive new identities and numbers; selected internal relationships reconnect to the copies; unselected Nodes are recreated rather than linked; shared Materials/Sections/Properties are reused. | Agreed |
 | O6 | Copying a Group creates new contained objects, reconnects internal relationships and drops external connections; the original is unchanged. | Agreed |
-| O7 | Every object belongs to exactly one Group; sequential numbering, optional names; maximum three levels (e.g. G1, G1_1, G1_1_1). Parent Groups may contain objects and subgroups. | Agreed |
-| O8 | A List is a set of typed terms, each *include* or *exclude*: Object (UUID, static), Group (dynamic, option to include subgroups), Property (dynamic), List (dynamic, no cycles). Ranges such as `1 to 100` are expanded to static Object terms at input. No text grammar in the core. *Replaces the earlier rule that membership is copied, not dynamic.* | Agreed |
+| O7 | Every element belongs to exactly one Group; numbering per parent, optional names; maximum three levels (e.g. G1, G1_1, G1_1_1). Parent Groups may contain elements and subgroups. *Refined by O12: only elements, and a Group is a label, not an object.* | Agreed |
+| O8 | A List is a set of typed terms, each *include* or *exclude*: Object (UUID, static), Group (label, dynamic, option to include subgroups), Property (dynamic), List (dynamic, no cycles). Ranges such as `1 to 100` are expanded to static Object terms at input. No text grammar in the core. *Replaces the earlier rule that membership is copied, not dynamic.* | Agreed |
 | O9 | Any structural object type may be a List member; mixed-type Lists are allowed. Where a List is used, members of non-applicable types are skipped and reported, never silently. | Agreed |
 | O10 | Lists do not affect Group membership or object properties. An object may be in multiple Lists. | Agreed |
+| O11 | Every object has a required `type` field with its type name in PascalCase. | Agreed |
+| O12 | A Group is a label on an element (`group: "G1_2"`), not an object. Only elements (Beam, Shell, Solid, Spring, Ground Spring, Constraint) have a Group; Nodes, Mass, shared definitions, Loads and Lists do not. The hierarchy follows from the label. Without user Groups, writers use `G1`. Group names are kept in a separate table (label → name). Lists and Group copies [O6] use the label. *Refines O6, O7 and O8.* | Agreed |
+| O13 | Writers generate UUID version 4 or 7; readers accept any version. | Agreed |
+| O14 | `number` is required for every type with a number sequence. Analysis Model objects have their own sequences per Analysis Model. | Agreed |
+| O15 | Each Load type has its own number sequence (Node Load, Beam Line Load, …). | Agreed |
+| O16 | Analysis Model generation keeps numbers: an analysis node for a Structural Model Node takes over its number, and an analysis element that corresponds one-to-one to an element takes over its number. Nodes and elements created by meshing or splitting get numbers above the highest Structural Model number. | Agreed |
+| O17 | `include_subgroups` on a Group term defaults to `true`. | Agreed |
+| O18 | A Property term may also reference a Material or Section; it selects objects that use it directly or through their Property. | Agreed |
+| O19 | List resolution does not depend on term order: union of includes minus union of excludes, so an exclude always wins. | Agreed |
 
 ## 4. Nodes and supports
 
@@ -210,3 +220,6 @@ part of the OSMF specification.
 | G6 | JSON Schema (2020-12) per domain in `schemas/`; schema and specification text are normative together. | Agreed |
 | G7 | Any object may carry an `extensions` block keyed by namespace. Each namespace is declared in the manifest with a version and a `required` flag. Unknown extensions are preserved unchanged; an unknown required extension causes a warning or refusal. | Agreed |
 | G8 | Format versioning uses SemVer (MAJOR.MINOR.PATCH) in the manifest. Minor versions are additive only; readers refuse a higher major version than they support. | Agreed |
+| G9 | JSON property names and enumerated values use `snake_case`; object type names use PascalCase. | Agreed |
+| G10 | Extension namespace names match `[a-z][a-z0-9_]*`. | Agreed |
+| G11 | Validation findings have severity `error`, `warning` or `info`, and should carry a stable message code, the UUIDs involved and a human-readable text. | Agreed |

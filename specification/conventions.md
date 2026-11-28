@@ -1,6 +1,6 @@
 # OSMF Specification Conventions
 
-**Status:** Draft. Items marked *(Proposed)* are new in this document and are not yet in the decision log. All other rules restate Agreed decisions from [`decisions.md`](decisions.md). The decision IDs are given in brackets.
+**Status:** Draft. All rules restate Agreed decisions from [`decisions.md`](decisions.md). The decision IDs are given in brackets.
 
 ## 1. Normative language
 
@@ -46,7 +46,9 @@ An optional preferred-units setting in the Project Core MAY record display prefe
 ## 4. Coordinate systems
 
 - The **global coordinate system** is a right-handed Cartesian system X, Y, Z.
-- *(Proposed)* Global Z points up by convention. The direction and magnitude of gravity are stored explicitly as a vector in the Project Core, with the default (0, 0, −9.81) m/s². Self-weight is derived from that vector and the material density [M3].
+- Global Z points up by convention. The direction and magnitude of gravity are stored explicitly as a vector in the Project Core, with the default (0, 0, −9.81) m/s² [U4]. Self-weight is derived from that vector and the material density [M3].
+
+*Note:* a model that uses Z down, as is traditional in SOFiSTiK, is stored with gravity (0, 0, +9.81) and needs no transformation.
 - **Local axes** of Beams and Springs follow the agreed rule [B7, K2]:
   - local x runs from I to J (along the tangent for arcs);
   - Global Z is the reference for local y and z, with Global Y as fallback when Global Z is near-parallel to x;
@@ -61,7 +63,7 @@ An optional preferred-units setting in the Project Core MAY record display prefe
 - Writers SHOULD write values with enough digits to round-trip a double exactly.
 - `NaN` and infinity are not allowed.
 
-## 6. Naming in files *(Proposed)*
+## 6. Naming in files [G9]
 
 - JSON property names use `snake_case`, for example `beam_property`.
 - Object type names use PascalCase as in the specification text, for example `"type": "GroundSpring"`.
@@ -70,13 +72,14 @@ An optional preferred-units setting in the Project Core MAY record display prefe
 ## 7. Identity and references
 
 - Every object has a UUID, and every reference to another object uses that UUID [O1]. The format is given in [`core-objects.md`](core-objects.md) §2.
+- The Group label is the only reference that is not a UUID, because a Group is not an object [O12].
 - A reference MUST point to an object of the type the field allows. A reference to a missing object, or to an object of the wrong type, makes the file invalid.
 
 ## 8. Validation and reporting
 
 OSMF processing never discards information silently (`docs/principles.md` §16).
 
-*(Proposed)* Validation findings use three severities:
+Validation findings use three severities [G11]:
 
 | Severity | Meaning |
 |---|---|
@@ -95,7 +98,7 @@ Each finding SHOULD carry a severity, a stable message code, the UUIDs of the ob
 - Readers MUST preserve unknown extensions unchanged.
 - A reader that meets an unknown extension marked `required` MUST warn or refuse to open the file.
 
-*(Proposed)* Namespace names are lowercase `[a-z][a-z0-9_]*`, for example `eurocode`, `sofistik` or `gsa`.
+Namespace names are lowercase `[a-z][a-z0-9_]*`, for example `eurocode`, `sofistik` or `gsa` [G10].
 
 ## 10. Versioning
 
