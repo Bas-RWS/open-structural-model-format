@@ -129,7 +129,7 @@ Potential result types include:
 
 Result metadata identifies the Case (with sub-index), quantity and components, units, coordinate system, location type, references to Analysis Model entities by UUID, the external dataset and its checksum, and provenance. Unaveraged element-node values are stored; averaging is postprocessing.
 
-Result values are stored in HDF5 files with the extension `.smr`. The detailed layout remains open.
+Result values are stored in HDF5 files with the extension `.smr`. The layout (Cases, sub-indices, quantities, entity lists and envelopes) is defined in the decision log (G4).
 
 ## 8. Inspection
 

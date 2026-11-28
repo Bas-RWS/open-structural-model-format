@@ -64,7 +64,7 @@ Phases reflect specification priority, not data flow. The data flow is Geometry 
 
 - Result metadata and indexing
 - External result datasets
-- HDF5 result layout for `.smr` files
+- Formal specification of the agreed `.smr` HDF5 layout
 - Case sub-indexing, steps, increments and result locations
 - Selective result access
 - Integrity and provenance

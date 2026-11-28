@@ -62,7 +62,7 @@ All computational result values shall be stored in external standardized result 
 
 The OSMF project shall contain result metadata, descriptions, indexes, provenance and references, but not actual computational result arrays or values.
 
-Result values are stored in HDF5 files with the extension `.smr`, placed next to the project package and referenced by relative path and checksum. The detailed internal layout remains to be decided.
+Result values are stored in HDF5 files with the extension `.smr`, placed next to the project package and referenced by relative path and checksum. The internal layout is defined in the decision log (G4).
 
 ## 13. Separation of data and implementation
 
